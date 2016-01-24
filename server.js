@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var Events = Discordie.Events;
 var app      = express();
 var client = new Discordie();
+var currentVoiceChannel;
 
 client.connect({
     email: process.env.DISCORD_MAIL,
@@ -49,6 +50,17 @@ client.Dispatcher.on(Events.MESSAGE_CREATE, function(e) {
     }
 });
 
+function reconnect() {
+    if(client.connected)
+        client.disconnect();
+    client.connect({
+        email: process.env.DISCORD_MAIL,
+        password: process.env.DISCORD_PASSWORD
+    });
+    if(currentVoiceChannel !== null)
+        voiceJoin(currentVoiceChannel.guild, currentVoiceChannel.voiceChannelName);
+}
+
 var stopPlaying = true;
 function play(filename, voiceConnectionInfo) {
     stopPlaying = false;
@@ -77,7 +89,8 @@ function play(filename, voiceConnectionInfo) {
 
         mp3decoder.once('readable', function() {
             if(!client.VoiceConnections.length) {
-                return console.log("Voice not connected");
+                reconnect();
+                return console.log("Voice not connected...trying to reconnect");
             }
 
             if(!voiceConnectionInfo) {
@@ -116,6 +129,7 @@ function say(text, textChannelName, guildName) {
 }
 
 function voiceJoin(voiceChannelName, guildName) {
+    currentVoiceChannel = { guild: guildName, voiceChannelName: voiceChannelName };
     var guild = client.Guilds.find(g => g.name == guildName);
     guild.voiceChannels
         .forEach(channel => {
@@ -125,6 +139,7 @@ function voiceJoin(voiceChannelName, guildName) {
 }
 
 function voiceLeave() {
+    currentVoiceChannel = null;
     client.Channels
         .filter(channel => channel.type == 'voice')
         .forEach(channel => {
