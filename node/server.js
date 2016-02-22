@@ -7,6 +7,8 @@ var bodyParser = require('body-parser');
 var Events = Discordie.Events;
 var app      = express();
 var client = new Discordie();
+var currentVoiceChannel;
+var uploadPath = process.env.UPLOAD_PATH;
 
 client.connect({
     email: process.env.DISCORD_MAIL,
@@ -49,6 +51,17 @@ client.Dispatcher.on(Events.MESSAGE_CREATE, function(e) {
     }
 });
 
+function reconnect() {
+    if(client.connected)
+        client.disconnect();
+    client.connect({
+        email: process.env.DISCORD_MAIL,
+        password: process.env.DISCORD_PASSWORD
+    });
+    if(currentVoiceChannel !== null)
+        voiceJoin(currentVoiceChannel.guild, currentVoiceChannel.voiceChannelName);
+}
+
 var stopPlaying = true;
 function play(filename, voiceConnectionInfo) {
     stopPlaying = false;
@@ -77,7 +90,8 @@ function play(filename, voiceConnectionInfo) {
 
         mp3decoder.once('readable', function() {
             if(!client.VoiceConnections.length) {
-                return console.log("Voice not connected");
+                reconnect();
+                return console.log("Voice not connected...trying to reconnect");
             }
 
             if(!voiceConnectionInfo) {
@@ -116,6 +130,7 @@ function say(text, textChannelName, guildName) {
 }
 
 function voiceJoin(voiceChannelName, guildName) {
+    currentVoiceChannel = { guild: guildName, voiceChannelName: voiceChannelName };
     var guild = client.Guilds.find(g => g.name == guildName);
     guild.voiceChannels
         .forEach(channel => {
@@ -125,6 +140,7 @@ function voiceJoin(voiceChannelName, guildName) {
 }
 
 function voiceLeave() {
+    currentVoiceChannel = null;
     client.Channels
         .filter(channel => channel.type == 'voice')
         .forEach(channel => {
@@ -137,8 +153,8 @@ app.listen(8080);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post('/api/sounds/play', function(req, res) {
-    var file = 'files/'+req.body.filename;
+app.post('/sounds/play', function(req, res) {
+    var file = uploadPath+req.body.filename;
     fs.access(file, function(err) {
         if(err) {
             res.send('file not found');
@@ -150,13 +166,13 @@ app.post('/api/sounds/play', function(req, res) {
     });
 });
 
-app.get('/api/sounds/stop', function(req, res) {
+app.get('/sounds/stop', function(req, res) {
     stop();
     res.send('stopping sound');
 });
 
-app.get('/api/sounds/files', function(req, res) {
-    fs.readdir('files/', function(err, files) {
+app.get('/sounds/files', function(req, res) {
+    fs.readdir(uploadPath, function(err, files) {
         var newFiles = [];
         files.forEach(function(element, index, array) {
             newFiles.push({ id: index + 1, name: element });
@@ -165,7 +181,7 @@ app.get('/api/sounds/files', function(req, res) {
     });
 });
 
-app.post('/api/text/send', function(req, res) {
+app.post('/text/send', function(req, res) {
     var guildName = req.body.guildName;
     var channelName = req.body.channelName;
     var text = req.body.text;
@@ -174,18 +190,27 @@ app.post('/api/text/send', function(req, res) {
 
 });
 
-app.post('/api/voice/join', function(req, res) {
+app.post('/voice/join', function(req, res) {
     var guildName = req.body.guildName;
     var channelName = req.body.channelName;
     voiceJoin(channelName, guildName);
     res.send('joined voice chat');
 });
 
-app.get('/api/voice/leave', function(req, res) {
+app.get('/voice/leave', function(req, res) {
     voiceLeave();
     res.send('left voice chat');
 });
 
+app.get('/testSounds', function(req, res) {
+	var file = uploadPath+'01.mp3';
+	var rs = fs.createReadStream(file);
+	rs.on('open', function() {
+		rs.pipe(res);
+	});
+});
+
+/*
 app.get('/', function(req, res) {
     res.sendFile(__dirname+'/public/index.html');
 });
@@ -193,3 +218,4 @@ app.get('/', function(req, res) {
 app.get('/core.js', function(req, res) {
     res.sendFile(__dirname+'/public/core.js');
 });
+*/
