@@ -8,6 +8,7 @@
                 <div class="buttons" style="display: inline;" ng-repeat="file in files">
                     <button class="btn btn-lg btn-info" ng-click="play(file.name)"> <% file.name %></button>
                 </div>
+                <button class="btn btn-lg btn-info" ng-click="stop()"> Stop </button>
 
             </div>
         </div>

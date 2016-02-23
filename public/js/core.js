@@ -27,6 +27,16 @@ function mainController($scope, $http) {
             });
     };
 
+    $scope.stop = function() {
+        $http.get(basePath + '/api/sounds/stop')
+            .success(function(data) {
+                console.log(data);
+            })
+            .error(function(data) {
+                console.log('Error: ' + data);
+            });
+    };
+
     $scope.sendMessage = function() {
         $http.post(basePath + '/api/text/send', { guildName: 'HerpDerp', channelName: 'general', text: $scope.formData.text})
             .success(function(data) {
