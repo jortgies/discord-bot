@@ -1,6 +1,3 @@
-require('dotenv').config();
-var basePath = process.env.API_BASE_PATH;
-
 var discordBot = angular.module('discordBot', [], function($interpolateProvider) {
     $interpolateProvider.startSymbol('<%');
     $interpolateProvider.endSymbol('%>');
@@ -8,6 +5,8 @@ var discordBot = angular.module('discordBot', [], function($interpolateProvider)
 
 function mainController($scope, $http) {
     $scope.formData = {};
+
+    var basePath = 'https://bot.ortgies.it/api';
 
     $http.get(basePath + '/sounds/files')
         .success(function(data) {
