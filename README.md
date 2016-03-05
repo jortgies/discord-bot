@@ -4,5 +4,5 @@
 * Run docker container:
 ```
 cd discord-bot/node
-docker run -it --rm --name discord-bot -v "$PWD":/usr/src/app -w /usr/src/app node:latest node server.js
+docker run --sig-proxy=false --rm --name discord-bot -v "$PWD":/usr/src/app -w /usr/src/app -v "$PWD/uploads":/uploads -p 8080:8080 node:latest node server.js
 ```
