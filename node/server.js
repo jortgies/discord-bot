@@ -9,11 +9,19 @@ var app      = express();
 var client = new Discordie();
 var currentVoiceChannel;
 var uploadPath = process.env.UPLOAD_PATH;
+var token = process.env.DISCORD_TOKEN;
 
-client.connect({
-    email: process.env.DISCORD_MAIL,
-    password: process.env.DISCORD_PASSWORD
-});
+if(token != "")
+{
+    client.connect({token: token});
+}
+else
+{
+    client.connect({
+        email: process.env.DISCORD_MAIL,
+        password: process.env.DISCORD_PASSWORD
+    });
+}
 
 client.Dispatcher.on(Events.GATEWAY_READY, function() {
     console.log("Connected as: " + client.User.username);
