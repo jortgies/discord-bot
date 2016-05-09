@@ -1,5 +1,5 @@
 require('dotenv').config();
-var lame = require('lame');
+//var lame = require('lame');
 var fs = require('fs');
 var Discordie = require("discordie");
 var express  = require('express');
@@ -208,6 +208,16 @@ app.post('/voice/join', function(req, res) {
 app.get('/voice/leave', function(req, res) {
     voiceLeave();
     res.send('left voice chat');
+});
+
+app.get('/voice/guilds', function(req, res) {
+    res.send(client.Guilds);
+});
+
+app.get('/voice/channels/:guild', function(req, res) {
+    var guild = req.params.guild;
+    var channels = client.Channels.voiceForGuild(guild);
+    res.send(channels);
 });
 
 app.get('/testSounds', function(req, res) {
