@@ -27,6 +27,9 @@
         <br/>
         <div id="control" class="row">
             <div class="col-sm-6 col-sm-offset-2">
+                <select id="selectedGuilds" ng-options="guild as guild.name for guild in guilds" ng-model="voiceGuild" ng-change="loadChannels()"></select>
+                <select id="selectedChannel" ng-options="channel as channel.name for channel in channels" ng-model="voiceChannel"></select>
+                <br/>
                 <button type="submit" class="btn btn-primary btn-lg" ng-click="voiceJoin()">Join Voice Channel</button>
                 <button type="submit" class="btn btn-primary btn-lg" ng-click="voiceLeave()">Leave Voice Channel</button>
             </div>

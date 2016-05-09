@@ -5,8 +5,11 @@ var discordBot = angular.module('discordBot', [], function($interpolateProvider)
 
 function mainController($scope, $http) {
     $scope.formData = {};
+    $scope.guilds = {};
+    $scope.channels = {};
 
-    var basePath = 'https://bot.ortgies.it/api';
+    //var basePath = 'https://bot.ortgies.it/api';
+    var basePath = 'http://localhost:8080';
 
     $http.get(basePath + '/sounds/files')
         .success(function(data) {
@@ -16,6 +19,18 @@ function mainController($scope, $http) {
         .error(function(data) {
             console.log('Error: ' + data);
         });
+
+    $http.get(basePath + '/voice/guilds')
+        .success(function(data) {
+            $scope.guilds = data;
+        });
+
+    $scope.loadChannels = function() {
+        $http.get(basePath + '/voice/channels/' + $scope.voiceGuild.id)
+            .success(function(data) {
+                $scope.channels = data;
+            });
+    };
 
     $scope.play = function(file) {
         $http.post(basePath + '/sounds/play', { filename: file })
@@ -49,7 +64,7 @@ function mainController($scope, $http) {
     };
 
     $scope.voiceJoin = function() {
-        $http.post(basePath + '/voice/join', { guildName: 'HerpDerp', channelName: 'general'})
+        $http.post(basePath + '/voice/join', { guildId: $scope.voiceGuild.id, channelId: $scope.voiceChannel.id})
             .success(function(data) {
                 console.log(data);
             })

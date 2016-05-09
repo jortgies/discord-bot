@@ -25,7 +25,7 @@ else
 
 client.Dispatcher.on(Events.GATEWAY_READY, function() {
     console.log("Connected as: " + client.User.username);
-    say('hello, yes dis is bot!', 'general', 'BotTesting');
+    //say('hello, yes dis is bot!', 'general', 'BotTesting');
 });
 
 client.Dispatcher.on(Discordie.Events.DISCONNECTED, (e) => {
@@ -137,12 +137,12 @@ function say(text, textChannelName, guildName) {
     channel.sendMessage(text);
 }
 
-function voiceJoin(voiceChannelName, guildName) {
-    currentVoiceChannel = { guild: guildName, voiceChannelName: voiceChannelName };
-    var guild = client.Guilds.find(g => g.name == guildName);
+function voiceJoin(voiceChannelId, guildId) {
+    currentVoiceChannel = { guild: guildId, voiceChannelId: voiceChannelId};
+    var guild = client.Guilds.find(g => g.id == guildId);
     guild.voiceChannels
         .forEach(channel => {
-        if(channel.name.toLowerCase().indexOf(voiceChannelName) >= 0)
+        if(channel.id.indexOf(voiceChannelId) >= 0)
             channel.join();
     });
 }
@@ -160,6 +160,15 @@ function voiceLeave() {
 app.listen(8080);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+var allowCrossDomain = function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type,X-XSRF-TOKEN,X-Requested-With');
+
+    next();
+};
+app.use(allowCrossDomain);
 
 app.post('/sounds/play', function(req, res) {
     var file = uploadPath+req.body.filename;
@@ -199,10 +208,10 @@ app.post('/text/send', function(req, res) {
 });
 
 app.post('/voice/join', function(req, res) {
-    var guildName = req.body.guildName;
-    var channelName = req.body.channelName;
-    voiceJoin(channelName, guildName);
-    res.send('joined voice chat');
+    var guildId = req.body.guildId;
+    var channelId= req.body.channelId;
+    voiceJoin(channelId, guildId);
+    res.send('joined voice chat: ' + guildId + ' - ' + channelId);
 });
 
 app.get('/voice/leave', function(req, res) {
