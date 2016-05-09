@@ -1,5 +1,5 @@
 require('dotenv').config();
-//var lame = require('lame');
+var lame = require('lame');
 var fs = require('fs');
 var Discordie = require("discordie");
 var express  = require('express');

@@ -8,8 +8,7 @@ function mainController($scope, $http) {
     $scope.guilds = {};
     $scope.channels = {};
 
-    //var basePath = 'https://bot.ortgies.it/api';
-    var basePath = 'http://localhost:8080';
+    var basePath = 'https://bot.ortgies.it/api';
 
     $http.get(basePath + '/sounds/files')
         .success(function(data) {
