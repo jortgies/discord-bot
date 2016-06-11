@@ -1,5 +1,9 @@
 # discord-bot change log
 
+## [0.0.3]
+### Changed
+- changed sound list design
+
 ## [0.0.2]
 ### Added
 - stop button
