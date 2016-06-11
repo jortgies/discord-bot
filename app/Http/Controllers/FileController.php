@@ -95,9 +95,9 @@ class FileController extends Controller
 
         if ($stereo) {
             // scale right channel down (a scale of 0 does not work)
-            exec("E:\lame\lame {$tmpfile}_o.mp3 --scale-r 0.1 -m m -S -f -b 16 --resample 8 {$tmpfile}.mp3 && E:\lame\lame -S --decode {$tmpfile}.mp3 {$tmpfile}_l.wav");
+            exec("lame {$tmpfile}_o.mp3 --scale-r 0.1 -m m -S -f -b 16 --resample 8 {$tmpfile}.mp3 && lame -S --decode {$tmpfile}.mp3 {$tmpfile}_l.wav");
             // same as above, left channel
-            exec("E:\lame\lame {$tmpfile}_o.mp3 --scale-l 0.1 -m m -S -f -b 16 --resample 8 {$tmpfile}.mp3 && E:\lame\lame -S --decode {$tmpfile}.mp3 {$tmpfile}_r.wav");
+            exec("lame {$tmpfile}_o.mp3 --scale-l 0.1 -m m -S -f -b 16 --resample 8 {$tmpfile}.mp3 && lame -S --decode {$tmpfile}.mp3 {$tmpfile}_r.wav");
             $wavs_to_process[] = "{$tmpfile}_l.wav";
             $wavs_to_process[] = "{$tmpfile}_r.wav";
 
@@ -106,7 +106,7 @@ class FileController extends Controller
             if(!file_exists($tmpfile."_r.wav"))
                 touch($tmpfile."_r.wav");
         } else {
-            exec("E:\lame\lame {$tmpfile}_o.mp3 -m m -S -f -b 16 --resample 8 {$tmpfile}.mp3 && E:\lame\lame -S --decode {$tmpfile}.mp3 {$tmpfile}.wav");
+            exec("lame {$tmpfile}_o.mp3 -m m -S -f -b 16 --resample 8 {$tmpfile}.mp3 && lame -S --decode {$tmpfile}.mp3 {$tmpfile}.wav");
             $wavs_to_process[] = "{$tmpfile}.wav";
         }
 
