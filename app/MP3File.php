@@ -159,12 +159,17 @@ class MP3File
         //$info['Original'] = $original_bit;
         //$info['Emphasis'] = $emphasis;
         $info['Framesize'] = self::framesize($layer, $bitrate, $sample_rate, $padding_bit);
-        $info['Samples'] = $samples[$simple_version][$layer];
+        if(isset($samples[$simple_version][$layer]))
+            $info['Samples'] = $samples[$simple_version][$layer];
+        else
+            $info['Samples'] = null;
         return $info;
     }
 
     private static function framesize($layer, $bitrate,$sample_rate,$padding_bit)
     {
+        if($sample_rate == 0)
+            return 0;
         if ($layer==1)
             return intval(((12 * $bitrate*1000 /$sample_rate) + $padding_bit) * 4);
         else //layer 2, 3

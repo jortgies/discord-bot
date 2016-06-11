@@ -46,14 +46,14 @@ class FileController extends Controller
             $length = $mp3->getDuration();
             if(!$this->fileHasWaveform($v))
                 $this->generateWaveform($v);
-            $file_array[] = ['id' => $k, 'name' => $v, 'length' => MP3File::formatTime($length), 'waveform' => 'uploads/waveform/'.$v.'_w.png'];
+            $file_array[] = ['id' => $k, 'name' => $v, 'length' => MP3File::formatTime($length), 'waveform' => 'uploads/waveform/'.str_slug($v).'_w.png'];
         }
         return view('list', ['allFiles' => $file_array]);
     }
 
     public function fileHasWaveform($filename)
     {
-        if(Storage::disk('local')->exists('waveform'.DIRECTORY_SEPARATOR.$filename."_w.png"))
+        if(Storage::disk('local')->exists('waveform'.DIRECTORY_SEPARATOR.str_slug($filename)."_w.png"))
             return true;
         else
             return false;
@@ -74,17 +74,19 @@ class FileController extends Controller
         );
     }
 
-    public function generateWaveform($filename, $stereo = false, $draw_flat = true)
+    public function generateWaveform($filename, $stereo = true, $draw_flat = true)
     {
+        ini_set("max_execution_time", "500");
         $detail = 5;
         $width = 180;
         $height = 60;
         $foreground = "#FF0000";
         $background = "#FFFFFF";
-        $filename_w = Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix().'waveform'.DIRECTORY_SEPARATOR.$filename.'_w.png';
+        $filename_w = Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix().'waveform'.DIRECTORY_SEPARATOR.str_slug($filename).'_w.png';
         Storage::makeDirectory('waveform');
 
-        $tmpname = substr(md5(time()), 0, 10);
+        //$tmpname = substr(md5(time()), 0, 10);
+        $tmpname = str_slug($filename);
         $tmpfile = Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix()."temp".DIRECTORY_SEPARATOR.$tmpname;
 
         Storage::disk('local')->copy($filename, "temp".DIRECTORY_SEPARATOR.$tmpname."_o.mp3");
@@ -94,13 +96,18 @@ class FileController extends Controller
 
         if ($stereo) {
             // scale right channel down (a scale of 0 does not work)
-            exec("lame {$tmpfile}_o.mp3 --scale-r 0.1 -m m -S -f -b 16 --resample 8 {$tmpfile}.mp3 && lame -S --decode {$tmpfile}.mp3 {$tmpfile}_l.wav");
+            exec("E:\lame\lame {$tmpfile}_o.mp3 --scale-r 0.1 -m m -S -f -b 16 --resample 8 {$tmpfile}.mp3 && E:\lame\lame -S --decode {$tmpfile}.mp3 {$tmpfile}_l.wav");
             // same as above, left channel
-            exec("lame {$tmpfile}_o.mp3 --scale-l 0.1 -m m -S -f -b 16 --resample 8 {$tmpfile}.mp3 && lame -S --decode {$tmpfile}.mp3 {$tmpfile}_r.wav");
+            exec("E:\lame\lame {$tmpfile}_o.mp3 --scale-l 0.1 -m m -S -f -b 16 --resample 8 {$tmpfile}.mp3 && E:\lame\lame -S --decode {$tmpfile}.mp3 {$tmpfile}_r.wav");
             $wavs_to_process[] = "{$tmpfile}_l.wav";
             $wavs_to_process[] = "{$tmpfile}_r.wav";
+
+            if(!file_exists($tmpfile."_l.wav"))
+                touch($tmpfile."_l.wav");
+            if(!file_exists($tmpfile."_r.wav"))
+                touch($tmpfile."_r.wav");
         } else {
-            exec("lame {$tmpfile}_o.mp3 -m m -S -f -b 16 --resample 8 {$tmpfile}.mp3 && lame -S --decode {$tmpfile}.mp3 {$tmpfile}.wav");
+            exec("E:\lame\lame {$tmpfile}_o.mp3 -m m -S -f -b 16 --resample 8 {$tmpfile}.mp3 && E:\lame\lame -S --decode {$tmpfile}.mp3 {$tmpfile}.wav");
             $wavs_to_process[] = "{$tmpfile}.wav";
         }
 
@@ -110,18 +117,6 @@ class FileController extends Controller
         $img = false;
 
         list($r, $g, $b) = $this->html2rgb($foreground);
-
-        if(!file_exists($filename))
-        {
-            $rimg = imagecreatetruecolor($width, $height);
-            imagesavealpha($rimg, true);
-            $transparentColor = imagecolorallocatealpha($rimg, 0, 0, 0, 127);
-            imagefill($rimg, 0, 0, $transparentColor);
-            imagepng($rimg, $filename_w);
-            imagedestroy($rimg);
-            Storage::disk('local')->deleteDirectory('temp');
-            return false;
-        }
 
         for($wav = 1; $wav <= sizeof($wavs_to_process); $wav++) {
 
@@ -156,6 +151,19 @@ class FileController extends Controller
             // $data_size = (size_of_file - header_bytes_read) / skipped_bytes + 1
             $data_size = floor((filesize($filename) - 44) / ($ratio + $byte) + 1);
             $data_point = 0;
+
+            //invalid file, create empty img
+            if($data_size == 0)
+            {
+                $rimg = imagecreatetruecolor($width, $height);
+                imagesavealpha($rimg, true);
+                $transparentColor = imagecolorallocatealpha($rimg, 0, 0, 0, 127);
+                imagefill($rimg, 0, 0, $transparentColor);
+                imagepng($rimg, $filename_w);
+                imagedestroy($rimg);
+                Storage::disk('local')->deleteDirectory('temp');
+                return false;
+            }
 
             // now that we have the data_size for a single channel (they both will be the same)
             // we can initialize our image canvas
