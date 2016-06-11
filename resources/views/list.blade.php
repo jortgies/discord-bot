@@ -3,13 +3,30 @@
     <div class="container">
 
         <div id="sounds" class="row">
-            <div class="col-sm-6 col-sm-offset-2">
-
-                <div class="buttons" style="display: inline;" ng-repeat="file in files">
-                    <button class="btn btn-lg btn-info" ng-click="play(file.name)"> <% file.name %></button>
-                </div>
+            <div class="col-sm-10 col-sm-offset-1">
+                <table id="files" class="row-border hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Filename</th>
+                            <th>Length</th>
+                            <th>Waveform</th>
+                            <th>Play</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($allFiles as $file)
+                        <tr>
+                            <td>{{$file['id']}}</td>
+                            <td>{{$file['name']}}</td>
+                            <td>{{$file['length']}}</td>
+                            <td><img src="{{asset($file['waveform'])}}" /></td>
+                            <td><button class="btn btn-sm btn-info" ng-click="play('{{$file['name']}}')"><span class="glyphicon glyphicon-play" aria-hidden="true"></span></button></td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
                 <button class="btn btn-lg btn-info" ng-click="stop()"> Stop </button>
-
             </div>
         </div>
         <br/>
