@@ -85,8 +85,7 @@ class FileController extends Controller
         $filename_w = Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix().'waveform'.DIRECTORY_SEPARATOR.str_slug($filename).'_w.png';
         Storage::makeDirectory('waveform');
 
-        //$tmpname = substr(md5(time()), 0, 10);
-        $tmpname = str_slug($filename);
+        $tmpname = substr(md5(time()), 0, 10);
         $tmpfile = Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix()."temp".DIRECTORY_SEPARATOR.$tmpname;
 
         Storage::disk('local')->copy($filename, "temp".DIRECTORY_SEPARATOR.$tmpname."_o.mp3");
