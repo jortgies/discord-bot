@@ -15,9 +15,16 @@ Route::group(['middleware' => ['web']], function () {
     Route::get('/', function () {
         return view('home');
     });
-    Route::get('/upload', function(){
-        return view('upload');
+
+    Route::group(['middleware' => 'auth'], function() {
+        Route::get('/upload', function(){
+            return view('upload');
+        });
+        Route::get('/list', 'FileController@listFiles');
+        Route::post('/upload', 'FileController@upload');
     });
-    Route::get('/list', 'FileController@listFiles');
-    Route::post('upload', 'FileController@upload');
+
+    Route::get('auth/discord', 'Auth\AuthController@redirectToProvider');
+    Route::get('auth/discord/callback', 'Auth\AuthController@handleProviderCallback');
+    Route::get('auth/logout', 'Auth\AuthController@getLogout');
 });

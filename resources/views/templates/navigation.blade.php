@@ -16,10 +16,25 @@
                     <li><a href="" id="categories">Kategorien</a></li>
                     <li><a href="{{url("/upload")}}">Upload</a></li>
                 </ul>
+
+                @if(Auth::check())
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                            <img src="{{ Auth::user()->avatar }}" width="25px" height="25px" />
+                            {{ Auth::user()->name }}
+                            <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li class="dropdown-header">Logged in as {{ Auth::user()->name }}</li>
+                            <li><a href="{{ url('auth/logout') }}">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                @endif
             </div>
         </div>
     </nav>
     <div class="jumbotron" id="categories" style="display: none">
-
     </div>
 </div>
