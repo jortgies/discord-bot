@@ -1,5 +1,9 @@
 # discord-bot change log
 
+## [0.0.4]
+### Added
+- login via discord (oauth2)
+
 ## [0.0.3]
 ### Changed
 - changed sound list design
