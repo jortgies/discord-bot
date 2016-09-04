@@ -8,6 +8,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use YoutubeDl\Exception\NotFoundException as YoutubeNotFoundException;
 
 class Handler extends ExceptionHandler
 {
@@ -45,6 +46,9 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $e)
     {
+        if($e instanceof YoutubeNotFoundException)
+            return view('upload')->withErrors('Something went wrong! Did you supply a valid Youtube link?');
+
         return parent::render($request, $e);
     }
 }
