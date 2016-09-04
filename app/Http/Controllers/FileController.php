@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Storage;
+use League\Flysystem\Exception;
 use Validator;
 use Illuminate\Http\Request;
 use App\MP3File;
+use YoutubeDl\YoutubeDl;
 
 
 class FileController extends Controller
@@ -27,12 +29,31 @@ class FileController extends Controller
                 return redirect('upload')->withErrors('Es existiert bereits eine Datei mit diesem Namen.');
             }
             else {
-		        //$file->move('uploads', $file->getClientOriginalName());
-                //dd($file);
                 Storage::disk('local')->put($file->getClientOriginalName(), \File::get($file));
                 return view('upload', ['success' => $file->getClientOriginalName()]);
             }
         }
+    }
+
+    public function uploadYoutube(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'link' => 'required|url'
+        ]);
+
+        if($validator->fails())
+            return back()->withErrors($validator)->withInput();
+
+        $dl = new YoutubeDl([
+            'extract-audio' => true,
+            'audio-format' => 'mp3',
+            'audio-quality' => 0, // best
+            'output' => '%(title)s.%(ext)s',
+        ]);
+        $dl->setDownloadPath(Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix());
+
+        $video = $dl->download($request->input('link'));
+        return view('upload', ['success' => sprintf('"%s" was successfully downloaded and converted to mp3.', $video->getFulltitle())]);
     }
 
     public function listFiles()

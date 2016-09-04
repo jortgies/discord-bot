@@ -1,5 +1,9 @@
 # discord-bot change log
 
+## [0.0.5]
+### Added
+- automatically download mp3 from youtube
+
 ## [0.0.4]
 ### Added
 - login via discord (oauth2)

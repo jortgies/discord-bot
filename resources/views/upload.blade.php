@@ -14,6 +14,13 @@
                 <input type="file" name="file" id="file" />
                 <button class="btn btn-primary" type="submit" name="submit" id="submit">Upload</button>
             </form>
+            <br/>
+            <form action="{{url()->to('uploadYoutube')}}" method="post">
+                {{ csrf_field() }}
+                <input type="url" name="link" id="link" placeholder="Link to Youtube Video" />
+                <br/>
+                <button class="btn btn-primary" type="submit" name="submit" id="submit">Get from Youtube</button>
+            </form>
         </div>
     </div>
 @endsection
