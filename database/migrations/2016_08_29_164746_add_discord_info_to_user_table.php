@@ -13,9 +13,9 @@ class AddDiscordInfoToUserTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('discord_id')->default('null');
-            $table->string('nickname')->default('null');
-            $table->string('avatar')->default('null');
+            $table->string('discord_id')->nullable()->default('null');
+            $table->string('nickname')->nullable()->default('null');
+            $table->string('avatar')->nullable()->default('null');
         });
     }
 
