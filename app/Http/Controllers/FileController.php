@@ -16,7 +16,7 @@ class FileController extends Controller
     public function upload(Request $file)
     {
         $validator = Validator::make($file->all(), [
-           'file' => 'required|mimes:mpga'
+           'file' => 'required|mimes:mpga,mp3'
         ]);
         if($validator->fails()) {
             return redirect('upload')->withErrors($validator);
