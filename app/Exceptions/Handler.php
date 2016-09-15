@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use YoutubeDl\Exception\NotFoundException as YoutubeNotFoundException;
+use YoutubeDl\Exception\PrivateVideoException as YoutubePrivateVideoException;
 
 class Handler extends ExceptionHandler
 {
@@ -48,6 +49,8 @@ class Handler extends ExceptionHandler
     {
         if($e instanceof YoutubeNotFoundException)
             return view('upload')->withErrors('Something went wrong! Did you supply a valid Youtube link?');
+        if($e instanceof YoutubePrivateVideoException)
+            return view('upload')->withErrors('Something went wrong! It seems like the video you are trying to download is private.');
 
         return parent::render($request, $e);
     }
