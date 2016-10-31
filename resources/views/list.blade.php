@@ -42,6 +42,18 @@
             </div>
         </div>
         <br/>
+        <div id="form" class="row">
+            <div class="col-sm-6 col-sm-offset-2 text-center">
+                <form>
+                    <div class="form-group">
+                        <input type="text" class="form-control input-lg text-center" placeholder="youtube link" ng-model="formData.url">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg" ng-click="playYoutube()">Stream</button>
+                </form>
+            </div>
+        </div>
+        <br/>
         <div id="control" class="row">
             <div class="col-sm-6 col-sm-offset-2">
                 <select id="selectedGuilds" ng-options="guild as guild.name for guild in guilds" ng-model="voiceGuild" ng-change="loadChannels()"></select>

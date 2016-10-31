@@ -4,12 +4,14 @@ var fs = require('fs');
 var Discordie = require("discordie");
 var express  = require('express');
 var bodyParser = require('body-parser');
+var youtubeStream = require('youtube-audio-stream')
 var Events = Discordie.Events;
 var app      = express();
 var client = new Discordie();
 var currentVoiceChannel;
 var uploadPath = process.env.UPLOAD_PATH;
 var token = process.env.DISCORD_TOKEN;
+var stopPlaying = true;
 
 if(token != "")
 {
@@ -70,64 +72,95 @@ function reconnect() {
         voiceJoin(currentVoiceChannel.guild, currentVoiceChannel.voiceChannelName);
 }
 
-var stopPlaying = true;
-function play(filename, voiceConnectionInfo) {
+function play(filename, info) {
     stopPlaying = false;
+    if (!client.VoiceConnections.length) {
+        return console.log("Voice not connected");
+    }
+
+    if (!info) info = client.VoiceConnections[0];
+
+    client.User.setGame(filename);
 
     var mp3decoder = new lame.Decoder();
-    mp3decoder.on('format', decode);
-    fs.createReadStream(filename).pipe(mp3decoder);
+    var file = fs.createReadStream(filename);
+    file.pipe(mp3decoder);
 
-    function decode(pcmfmt) {
+    mp3decoder.on('format', pcmfmt => {
         var options = {
             frameDuration: 60,
             sampleRate: pcmfmt.sampleRate,
             channels: pcmfmt.channels,
-            float: false,
-
-            multiThreadedVoice: true
+            float: false
         };
 
-        const frameDuration = 60;
+        var encoderStream = info.voiceConnection.getEncoderStream(options);
+        if (!encoderStream) {
+            return console.log(
+                "Unable to get encoder stream, connection is disposed"
+            );
+        }
 
-        var readSize =
-            pcmfmt.sampleRate / 1000 *
-            options.frameDuration *
-            pcmfmt.bitDepth / 8 *
-            pcmfmt.channels;
-
-        mp3decoder.once('readable', function() {
-            if(!client.VoiceConnections.length) {
-                reconnect();
-                return console.log("Voice not connected...trying to reconnect");
-            }
-
-            if(!voiceConnectionInfo) {
-                voiceConnectionInfo = client.VoiceConnections[0];
-            }
-            var voiceConnection = voiceConnectionInfo.voiceConnection;
-
-            var encoder = voiceConnection.getEncoder(options);
-
-            const needBuffer = () => encoder.onNeedBuffer();
-            encoder.onNeedBuffer = function() {
-                var chunk = mp3decoder.read(readSize);
-                if (stopPlaying) return;
-
-                if (!chunk) return setTimeout(needBuffer, options.frameDuration);
-
-                var sampleCount = readSize / pcmfmt.channels / (pcmfmt.bitDepth / 8);
-                encoder.enqueue(chunk, sampleCount);
-            };
-
-            needBuffer();
+        encoderStream.resetTimestamp();
+        encoderStream.removeAllListeners("timestamp");
+        encoderStream.on("timestamp", function(timestamp){
+            if(stopPlaying)
+                mp3decoder.unpipe();
         });
 
-        //mp3decoder.once('end', () => setTimeout(play, 100, voiceConnectionInfo));
+        mp3decoder.pipe(encoderStream);
+
+        encoderStream.once("unpipe", () => file.destroy());
+    });
+}
+
+function playYoutube(url, info) {
+    stopPlaying = false;
+    if (!client.VoiceConnections.length) {
+        return console.log("Voice not connected");
     }
+
+    if (!info) info = client.VoiceConnections[0];
+
+    client.User.setGame("Youtube");
+
+    var mp3decoder = new lame.Decoder();
+    try {
+        youtubeStream(url).pipe(mp3decoder);
+    }
+    catch(e) {
+        console.log(e);
+    }
+
+
+    mp3decoder.on('format', pcmfmt => {
+        var options = {
+            frameDuration: 60,
+            sampleRate: pcmfmt.sampleRate,
+            channels: pcmfmt.channels,
+            float: false
+        };
+
+        var encoderStream = info.voiceConnection.getEncoderStream(options);
+        if (!encoderStream) {
+            return console.log(
+                "Unable to get encoder stream, connection is disposed"
+            );
+        }
+
+        encoderStream.resetTimestamp();
+        encoderStream.removeAllListeners("timestamp");
+        encoderStream.on("timestamp", function(timestamp){
+            if(stopPlaying)
+                mp3decoder.unpipe();
+        });
+
+        mp3decoder.pipe(encoderStream);
+    });
 }
 
 function stop() {
+    client.User.setGame(null);
     stopPlaying = true;
 }
 
@@ -181,6 +214,12 @@ app.post('/sounds/play', function(req, res) {
             res.send('playing sound');
         }
     });
+});
+
+app.post('/sounds/playYoutube', function(req, res) {
+    var url = req.body.url;
+    playYoutube(url);
+    res.send("playing url "+url);
 });
 
 app.get('/sounds/stop', function(req, res) {

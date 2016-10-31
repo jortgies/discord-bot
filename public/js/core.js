@@ -41,6 +41,17 @@ function mainController($scope, $http) {
             });
     };
 
+    $scope.playYoutube = function() {
+        $http.post(basePath + '/sounds/playYoutube', { url: $scope.formData.url})
+            .success(function(data) {
+                $scope.formData = {};
+                console.log(data);
+            })
+            .error(function(data) {
+                console.log('Error: ' + data);
+            });
+    };
+
     $scope.stop = function() {
         $http.get(basePath + '/sounds/stop')
             .success(function(data) {
