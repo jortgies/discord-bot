@@ -7,7 +7,7 @@ var bodyParser = require('body-parser');
 var youtubeStream = require('youtube-audio-stream')
 var Events = Discordie.Events;
 var app      = express();
-var client = new Discordie();
+var client = new Discordie({autoReconnect: true});
 var currentVoiceChannel;
 var uploadPath = process.env.UPLOAD_PATH;
 var token = process.env.DISCORD_TOKEN;
