@@ -10,7 +10,7 @@
     "url"  : "https://github.com/jortgies/discord-bot.git"
   },
   "dependencies" : {
-    "discordie"             : "~0.6.0",
+    "discordie"             : "latest",
     "lame"                  : "~1.2.3",
     "express"               : "~4.13.4",
     "body-parser"           : "~1.14.2",
