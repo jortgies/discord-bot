@@ -12,6 +12,7 @@ var currentVoiceChannel;
 var uploadPath = process.env.UPLOAD_PATH;
 var token = process.env.DISCORD_TOKEN;
 var stopPlaying = true;
+var motd = "bot.ortgies.it";
 
 if(token != "")
 {
@@ -27,6 +28,8 @@ else
 
 client.Dispatcher.on(Events.GATEWAY_READY, function() {
     console.log("Connected as: " + client.User.username);
+    console.log("Setting game to "+motd);
+    client.User.setGame(motd);
     //say('hello, yes dis is bot!', 'general', 'BotTesting');
 });
 
@@ -80,7 +83,9 @@ function play(filename, info) {
 
     if (!info) info = client.VoiceConnections[0];
 
-    client.User.setGame(filename);
+    var regex = /(\/.*\/)*(.*)\.(.*)/g;
+    var f = regex.exec(filename);
+    client.User.setGame(f[2]);
 
     var mp3decoder = new lame.Decoder();
     var file = fs.createReadStream(filename);
@@ -160,7 +165,7 @@ function playYoutube(url, info) {
 }
 
 function stop() {
-    client.User.setGame(null);
+    client.User.setGame(motd);
     stopPlaying = true;
 }
 
@@ -183,11 +188,8 @@ function voiceJoin(voiceChannelId, guildId) {
 function voiceLeave() {
     currentVoiceChannel = null;
     client.Channels
-        .filter(channel => channel.type == 'voice')
-        .forEach(channel => {
-            if(channel.joined)
-                channel.leave();
-    });
+        .filter(channel => channel.type == "voice" && channel.joined)
+        .forEach(channel => channel.leave());
 }
 
 app.listen(8080);
