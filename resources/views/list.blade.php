@@ -27,6 +27,7 @@
                     </tbody>
                 </table>
                 <button class="btn btn-lg btn-info" ng-click="stop()"> Stop </button>
+                <button class="btn btn-lg btn-info" ng-click="random()"> Random Sound </button>
             </div>
         </div>
         <br/>

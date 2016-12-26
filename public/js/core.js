@@ -52,6 +52,16 @@ function mainController($scope, $http) {
             });
     };
 
+    $scope.random = function() {
+        $http.get(basePath + '/sounds/playRandom')
+            .success(function(data) {
+                console.log(data);
+            })
+            .error(function(data) {
+                console.log('Error: ' + data);
+            });
+    };
+
     $scope.stop = function() {
         $http.get(basePath + '/sounds/stop')
             .success(function(data) {

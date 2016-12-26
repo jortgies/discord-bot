@@ -224,6 +224,14 @@ app.post('/sounds/playYoutube', function(req, res) {
     res.send("playing url "+url);
 });
 
+app.get('/sounds/playRandom', function(req, res) {
+    fs.readdir(uploadPath, function(err, items) {
+        var rand = Math.floor(Math.random() * (items.length + 1));
+        play(uploadPath+'/'+items[rand]);
+    });
+    res.send('playing random sound');
+});
+
 app.get('/sounds/stop', function(req, res) {
     stop();
     res.send('stopping sound');
