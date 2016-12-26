@@ -21,7 +21,7 @@
                             <td>{{$file['name']}}</td>
                             <td>{{$file['length']}}</td>
                             <td><img src="{{asset($file['waveform'])}}" /></td>
-                            <td><button class="btn btn-sm btn-info" ng-click="play('{{$file['name']}}')"><span class="glyphicon glyphicon-play" aria-hidden="true"></span></button></td>
+                            <td><button class="btn btn-sm btn-info" ng-click='play("{{$file['name']}}")'><span class="glyphicon glyphicon-play" aria-hidden="true"></span></button></td>
                         </tr>
                         @endforeach
                     </tbody>
