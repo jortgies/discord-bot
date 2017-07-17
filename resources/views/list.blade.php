@@ -10,7 +10,9 @@
                             <th>ID</th>
                             <th>Filename</th>
                             <th>Length</th>
-                            <th>Waveform</th>
+                            @if(env('ENABLE_WAVEFORM', false))
+                                <th>Waveform</th>
+                            @endif
                             <th>Play</th>
                         </tr>
                     </thead>
@@ -20,7 +22,9 @@
                             <td>{{$file['id']}}</td>
                             <td>{{$file['name']}}</td>
                             <td>{{$file['length']}}</td>
-                            <td><img src="{{asset($file['waveform'])}}" /></td>
+                            @if(env('ENABLE_WAVEFORM', false))
+                                <td><img src="{{asset($file['waveform'])}}" /></td>
+                            @endif
                             <td><button class="btn btn-sm btn-info" ng-click='play("{{$file['name']}}")'><span class="glyphicon glyphicon-play" aria-hidden="true"></span></button></td>
                         </tr>
                         @endforeach

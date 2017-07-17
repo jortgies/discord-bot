@@ -65,9 +65,14 @@ class FileController extends Controller
         {
             $mp3 = new MP3File($storagePath."/".$v);
             $length = $mp3->getDuration();
-            if(!$this->fileHasWaveform($v))
-                $this->generateWaveform($v);
-            $file_array[] = ['id' => $k, 'name' => $v, 'length' => MP3File::formatTime($length), 'waveform' => 'uploads/waveform/'.str_slug($v).'_w.png'];
+            $waveform = null;
+            if(env('ENABLE_WAVEFORM', false)) {
+                if(!$this->fileHasWaveform($v)) {
+                    $waveform = 'uploads/waveform/'.str_slug($v).'_w.png';
+                    $this->generateWaveform($v);
+                }
+            }
+            $file_array[] = ['id' => $k, 'name' => $v, 'length' => MP3File::formatTime($length), 'waveform' => $waveform];
         }
         return view('list', ['allFiles' => $file_array]);
     }
@@ -131,8 +136,8 @@ class FileController extends Controller
             $wavs_to_process[] = "{$tmpfile}.wav";
         }
 
-        Storage::disk('local')->delete('temp'.DIRECTORY_SEPARATOR.$tmpname.'_o.mp3');
-        Storage::disk('local')->delete('temp'.DIRECTORY_SEPARATOR.$tmpname.'.mp3');
+        if(Storage::disk('local')->exists('temp'.DIRECTORY_SEPARATOR.$tmpname.'_o.mp3')) Storage::disk('local')->delete('temp'.DIRECTORY_SEPARATOR.$tmpname.'_o.mp3');
+        if(Storage::disk('local')->exists('temp'.DIRECTORY_SEPARATOR.$tmpname.'.mp3')) Storage::disk('local')->delete('temp'.DIRECTORY_SEPARATOR.$tmpname.'.mp3');
 
         $img = false;
 
