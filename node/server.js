@@ -188,7 +188,7 @@ function voiceJoin(voiceChannelId, guildId) {
 function voiceLeave() {
     currentVoiceChannel = null;
     client.Channels
-        .filter(channel => channel.type == "voice" && channel.joined)
+        .filter(channel => channel.isGuildVoice && channel.joined)
         .forEach(channel => channel.leave());
 }
 
