@@ -8,7 +8,7 @@ docker build -t node-ffmpeg .
 ```
 * Run docker container:
 ```
-docker run --sig-proxy=false --rm --name discord-bot -v "$PWD":/usr/src/app -w /usr/src/app -v "$PWD/uploads":/uploads -p 8080:8080 node-ffmpeg node server.js
+docker run -d --sig-proxy=false --name discord-bot -v "$PWD":/usr/src/app -w /usr/src/app -v "$PWD/uploads":/uploads -p 8080:8080 node-ffmpeg node server.js
 ```
 * Install systemd service file:
 ```
