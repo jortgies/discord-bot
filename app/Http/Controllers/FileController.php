@@ -63,16 +63,20 @@ class FileController extends Controller
         $storagePath  = Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix();
         foreach($files as $k => $v)
         {
-            $mp3 = new MP3File($storagePath."/".$v);
-            $length = $mp3->getDuration();
+            $length = null;
+            if(env('ENABLE_LENGTH_DETECTION', false)) {
+                $mp3 = new MP3File($storagePath."/".$v);
+                $length = MP3File::formatTime($mp3->getDuration());
+            }
             $waveform = null;
             if(env('ENABLE_WAVEFORM', false)) {
+                dd(env('ENABLE_WAVEFORM'));
                 if(!$this->fileHasWaveform($v)) {
                     $waveform = 'uploads/waveform/'.str_slug($v).'_w.png';
                     $this->generateWaveform($v);
                 }
             }
-            $file_array[] = ['id' => $k, 'name' => $v, 'length' => MP3File::formatTime($length), 'waveform' => $waveform];
+            $file_array[] = ['id' => $k, 'name' => $v, 'length' => $length, 'waveform' => $waveform];
         }
         return view('list', ['allFiles' => $file_array]);
     }

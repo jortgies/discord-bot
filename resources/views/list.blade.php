@@ -9,7 +9,9 @@
                         <tr>
                             <th>ID</th>
                             <th>Filename</th>
-                            <th>Length</th>
+                            @if(env('ENABLE_LENGTH_DETECTION', false))
+                                <th>Length</th>
+                            @endif
                             @if(env('ENABLE_WAVEFORM', false))
                                 <th>Waveform</th>
                             @endif
@@ -21,7 +23,9 @@
                         <tr>
                             <td>{{$file['id']}}</td>
                             <td>{{$file['name']}}</td>
-                            <td>{{$file['length']}}</td>
+                            @if(env('ENABLE_LENGTH_DETECTION', false))
+                                <td>{{$file['length']}}</td>
+                            @endif
                             @if(env('ENABLE_WAVEFORM', false))
                                 <td><img src="{{asset($file['waveform'])}}" /></td>
                             @endif
