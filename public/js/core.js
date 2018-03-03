@@ -8,7 +8,7 @@ function mainController($scope, $http) {
     $scope.guilds = {};
     $scope.channels = {};
 
-    var basePath = 'https://bot.ortgies.it/api';
+    var basePath = 'https://bot.teamkohl.eu/api';
 
     $http.get(basePath + '/sounds/files')
         .success(function(data) {

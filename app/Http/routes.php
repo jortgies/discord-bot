@@ -23,6 +23,8 @@ Route::group(['middleware' => ['web']], function () {
         Route::get('/list', 'FileController@listFiles');
         Route::post('/upload', 'FileController@upload');
         Route::post('/uploadYoutube', 'FileController@uploadYoutube');
+        Route::get('/rename/{oldFilename}/{newFilename}', 'FileController@renameFile');
+        Route::get('/delete/{filename}', 'FileController@deleteFile');
     });
 
     Route::get('auth/discord', 'Auth\AuthController@redirectToProvider');

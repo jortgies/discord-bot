@@ -1,7 +1,11 @@
 @extends('templates.master')
 @section('content')
     <div class="container">
-
+        @if (session('status'))
+            <div class="alert alert-success">
+                {{ session('status') }}
+            </div>
+        @endif
         <div id="sounds" class="row">
             <div class="col-sm-10 col-sm-offset-1">
                 <table id="files" class="row-border hover">
@@ -16,6 +20,7 @@
                                 <th>Waveform</th>
                             @endif
                             <th>Play</th>
+                            <th>Delete</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -30,6 +35,7 @@
                                 <td><img src="{{asset($file['waveform'])}}" /></td>
                             @endif
                             <td><button class="btn btn-sm btn-info" ng-click='play("{{$file['name']}}")'><span class="glyphicon glyphicon-play" aria-hidden="true"></span></button></td>
+                            <td><a href="{{ action('FileController@deleteFile', ['filename' => $file['name']]) }}"><button class="btn btn-sm btn-info"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></a></td>
                         </tr>
                         @endforeach
                     </tbody>

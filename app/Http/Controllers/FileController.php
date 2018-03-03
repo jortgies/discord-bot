@@ -65,7 +65,7 @@ class FileController extends Controller
         {
             $length = null;
             if(env('ENABLE_LENGTH_DETECTION', false)) {
-                $mp3 = new MP3File($storagePath."/".$v);
+                $mp3 = new MP3File($storagePath.DIRECTORY_SEPARATOR.$v);
                 $length = MP3File::formatTime($mp3->getDuration());
             }
             $waveform = null;
@@ -79,6 +79,16 @@ class FileController extends Controller
             $file_array[] = ['id' => $k, 'name' => $v, 'length' => $length, 'waveform' => $waveform];
         }
         return view('list', ['allFiles' => $file_array]);
+    }
+
+    public function renameFile($oldFilename, $newFilename) {
+        Storage::disk('local')->move($oldFilename, $newFilename);
+        return back()->with(['status' => 'Successfully renamed file.']);
+    }
+
+    public function deleteFile($filename) {
+        Storage::disk('local')->delete($filename);
+        return back()->with(['status' => 'Successfully deleted file.']);
     }
 
     public function fileHasWaveform($filename)
