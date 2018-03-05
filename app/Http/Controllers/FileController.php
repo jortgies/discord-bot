@@ -87,7 +87,7 @@ class FileController extends Controller
     }
 
     public function deleteFile($filename) {
-        Storage::disk('local')->delete($filename);
+        Storage::disk('local')->delete(urldecode($filename));
         return back()->with(['status' => 'Successfully deleted file.']);
     }
 
